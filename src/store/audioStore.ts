@@ -8,6 +8,7 @@ import {
   PlaybackState,
   AudioVisualizationSettings
 } from '../types/audio';
+import { saveRecordingsToStorage } from '../utils/localStorage';
 
 interface AudioState {
   // Recording state
@@ -35,6 +36,7 @@ interface AudioState {
   setCurrentRecording: (recording: AudioRecording | null) => void;
   addRecording: (recording: AudioRecording) => void;
   removeRecording: (id: string) => void;
+  setRecordings: (recordings: AudioRecording[]) => void;
 
   setPlaybackState: (state: PlaybackState) => void;
   setCurrentAudioBuffer: (buffer: AudioBuffer | null) => void;
@@ -94,12 +96,19 @@ export const useAudioStore = create<AudioState>((set) => ({
 
   setRecordingState: (recordingState) => set({ recordingState }),
   setCurrentRecording: (currentRecording) => set({ currentRecording }),
-  addRecording: (recording) => set((state) => ({
-    recordings: [...state.recordings, recording]
-  })),
-  removeRecording: (id) => set((state) => ({
-    recordings: state.recordings.filter((r) => r.id !== id)
-  })),
+  addRecording: (recording) => set((state) => {
+    const newRecordings = [...state.recordings, recording];
+    // Auto-save to localStorage
+    saveRecordingsToStorage(newRecordings);
+    return { recordings: newRecordings };
+  }),
+  removeRecording: (id) => set((state) => {
+    const newRecordings = state.recordings.filter((r) => r.id !== id);
+    // Auto-save to localStorage
+    saveRecordingsToStorage(newRecordings);
+    return { recordings: newRecordings };
+  }),
+  setRecordings: (recordings) => set({ recordings }),
 
   setPlaybackState: (playbackState) => set({ playbackState }),
   setCurrentAudioBuffer: (currentAudioBuffer) => set({ currentAudioBuffer }),

@@ -3,10 +3,14 @@ import { AudioPlayback } from './components/AudioPlayback';
 import { RecordingsList } from './components/RecordingsList';
 import { FilterControls } from './components/FilterControls';
 import { useAudioContext } from './hooks/useAudioContext';
+import { useLoadRecordings } from './hooks/useLoadRecordings';
 
 function App() {
   // Initialize audio context
   useAudioContext();
+
+  // Load saved recordings from localStorage
+  const { isLoading } = useLoadRecordings();
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -16,6 +20,14 @@ function App() {
           <p className="text-blue-100 mt-2">Real-time audio frequency visualization and filtering</p>
         </div>
       </header>
+
+      {isLoading && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+            Loading saved recordings...
+          </div>
+        </div>
+      )}
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
