@@ -18,12 +18,13 @@ export const useAudioContext = () => {
       setAudioContext(ctx);
 
       // Create analyser node for visualization
+      // Note: Do NOT connect analyser to destination here
+      // It will be connected dynamically during playback to allow filter insertion
       const analyser = ctx.createAnalyser();
       analyser.fftSize = visualizationSettings.fftSize;
       analyser.smoothingTimeConstant = visualizationSettings.smoothingTimeConstant;
       analyser.minDecibels = visualizationSettings.minDecibels;
       analyser.maxDecibels = visualizationSettings.maxDecibels;
-      analyser.connect(ctx.destination);
       setAnalyserNode(analyser);
     }
 

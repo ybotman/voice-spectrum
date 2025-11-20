@@ -40,6 +40,8 @@ export const useAudioRecorder = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const duration = (Date.now() - startTimeRef.current) / 1000;
 
+        console.log('Recording stopped. Chunks captured:', audioChunksRef.current.length, 'Total blob size:', audioBlob.size, 'bytes');
+
         const recording: AudioRecording = {
           id: `recording-${Date.now()}`,
           name: `Recording ${new Date().toLocaleTimeString()}`,

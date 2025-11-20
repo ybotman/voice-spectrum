@@ -26,8 +26,11 @@ export const useAudioPlayback = () => {
     }
 
     try {
+      console.log('Loading audio from recording:', recording.name, 'Blob size:', recording.blob.size, 'bytes');
       const arrayBuffer = await recording.blob.arrayBuffer();
+      console.log('ArrayBuffer size:', arrayBuffer.byteLength, 'bytes');
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      console.log('Audio decoded:', audioBuffer.duration, 'seconds,', audioBuffer.numberOfChannels, 'channels,', audioBuffer.sampleRate, 'Hz');
       setCurrentAudioBuffer(audioBuffer);
     } catch (err) {
       console.error('Failed to load audio:', err);
@@ -77,30 +80,59 @@ export const useAudioPlayback = () => {
     source.loop = true; // Enable looping
     sourceNodeRef.current = source;
 
-    // Setup audio chain
+    // Setup audio chain with proper connections to speakers
     if (filterSettings.enabled) {
       const filters = setupFilters();
       if (filters) {
         source.connect(filters.highPass);
         filters.highPass.connect(filters.lowPass);
         filters.lowPass.connect(analyserNode);
+        // Connect analyser to destination (speakers) - this was missing!
+        analyserNode.connect(audioContext.destination);
       } else {
         source.connect(analyserNode);
+        analyserNode.connect(audioContext.destination);
       }
     } else {
       source.connect(analyserNode);
+      // Connect analyser to destination (speakers) - this was missing!
+      analyserNode.connect(audioContext.destination);
     }
 
     // Start playback
     source.start(0);
     setPlaybackState(PlaybackState.PLAYING);
+
+    console.log('Playback started. Audio buffer:', currentAudioBuffer.length, 'samples,', currentAudioBuffer.duration, 'seconds');
   }, [audioContext, currentAudioBuffer, analyserNode, filterSettings, setupFilters, setPlaybackState]);
 
   const stop = useCallback(() => {
     if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
+      try {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+      } catch (err) {
+        console.warn('Error stopping source:', err);
+      }
       sourceNodeRef.current = null;
     }
+
+    // Disconnect filters if they exist
+    if (filterNodeRef.current) {
+      try {
+        filterNodeRef.current.disconnect();
+      } catch (err) {
+        console.warn('Error disconnecting highpass filter:', err);
+      }
+    }
+    if (lowPassFilterRef.current) {
+      try {
+        lowPassFilterRef.current.disconnect();
+      } catch (err) {
+        console.warn('Error disconnecting lowpass filter:', err);
+      }
+    }
+
     setPlaybackState(PlaybackState.STOPPED);
   }, [setPlaybackState]);
 
