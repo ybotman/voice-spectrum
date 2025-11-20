@@ -23,8 +23,9 @@ if [ -z "$SUMMARY" ]; then
     exit 1
 fi
 
-# Map common type aliases
-case "${ISSUE_TYPE,,}" in
+# Map common type aliases (using tr for bash 3.x compatibility)
+ISSUE_TYPE_LOWER=$(echo "$ISSUE_TYPE" | tr '[:upper:]' '[:lower:]')
+case "$ISSUE_TYPE_LOWER" in
     bug) ISSUE_TYPE="Bug" ;;
     story) ISSUE_TYPE="Story" ;;
     task) ISSUE_TYPE="Task" ;;

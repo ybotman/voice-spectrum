@@ -32,11 +32,33 @@ A web-based audio tool that allows you to:
 
 ## Technology Stack
 
+### Core Technologies
+
 - **Framework**: React 18 with TypeScript
-- **Audio Processing**: Web Audio API (built-in browser API)
-- **Visualization**: Canvas API / D3.js / React-vis (TBD)
-- **State Management**: React Context / Zustand (TBD)
-- **UI Components**: TailwindCSS / Material-UI (TBD)
+- **Build Tool**: Create React App (CRA)
+- **Audio Processing**: Web Audio API (native browser API)
+- **Visualization**: Canvas API (native, optimized for real-time rendering)
+- **State Management**: Zustand (lightweight, 1KB state management)
+- **UI Framework**: TailwindCSS (utility-first CSS framework)
+
+### Development Tools
+
+- **TypeScript**: Strict mode enabled for maximum type safety
+- **ESLint**: Code quality and consistency
+- **Jest**: Unit testing framework
+- **React Testing Library**: Component testing
+
+### Deployment
+
+- **Development/Staging**: Vercel (automatic deployments from DEVL branch)
+- **Production**: Cloudflare Pages (future migration for global CDN performance)
+
+### Why These Choices?
+
+- **Canvas API**: Best performance for real-time audio visualization compared to SVG-based solutions
+- **Zustand**: Minimal overhead, simple API, perfect for real-time audio state
+- **TailwindCSS**: Maximum flexibility for custom audio UI components
+- **Web Audio API**: Native browser API, no external dependencies, excellent performance
 
 ## Getting Started
 
@@ -47,6 +69,14 @@ npm start
 ```
 
 Runs the app in development mode at [http://localhost:3000](http://localhost:3000)
+
+### Linting
+
+```bash
+npm run lint
+```
+
+Runs ESLint to check code quality and TypeScript compliance.
 
 ### Build
 
@@ -63,6 +93,14 @@ npm test
 ```
 
 Launches the test runner in interactive watch mode.
+
+### Quality Gates
+
+Before merging to DEVL or main, all commits must pass:
+
+1. **ESLint** - `npm run lint` (no errors)
+2. **Build** - `npm run build` (successful compilation)
+3. **Tests** - `npm test` (all tests passing)
 
 ## Project Structure
 
