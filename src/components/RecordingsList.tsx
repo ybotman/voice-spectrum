@@ -6,17 +6,38 @@ import { downloadAudio } from '../utils/audioProcessing';
 
 export const RecordingsList = () => {
   const { recordings, removeRecording, currentRecording, setSelectedRecording } = useAudioStore();
-  const { loadAudio, currentAudioBuffer } = useAudioPlayback();
+  const { loadAudio } = useAudioPlayback();
   const { audioContext } = useAudioContext();
 
   const handleSelect = async (recording: AudioRecording) => {
+    console.log('Loading recording:', recording.name, 'Blob size:', recording.blob.size, 'bytes');
     setSelectedRecording(recording);
     await loadAudio(recording);
   };
 
-  const handleDownload = (recording: AudioRecording) => {
-    if (currentAudioBuffer && audioContext) {
-      downloadAudio(currentAudioBuffer, `${recording.name}.wav`);
+  const handleDownload = async (recording: AudioRecording) => {
+    try {
+      if (!audioContext) {
+        console.error('Audio context not initialized');
+        alert('Audio context not ready. Please wait and try again.');
+        return;
+      }
+
+      console.log('Downloading recording:', recording.name, 'Blob size:', recording.blob.size, 'bytes');
+
+      // Convert blob to audio buffer
+      const arrayBuffer = await recording.blob.arrayBuffer();
+      console.log('ArrayBuffer size:', arrayBuffer.byteLength, 'bytes');
+
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      console.log('Audio decoded for download:', audioBuffer.duration, 'seconds');
+
+      // Download as WAV
+      downloadAudio(audioBuffer, `${recording.name}.wav`);
+      console.log('Download initiated');
+    } catch (err) {
+      console.error('Failed to download recording:', err);
+      alert(`Failed to download: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
@@ -52,7 +73,10 @@ export const RecordingsList = () => {
             <div className="flex-1">
               <p className="font-semibold">{recording.name}</p>
               <p className="text-sm text-gray-600">
-                {recording.duration.toFixed(2)}s • {recording.createdAt.toLocaleString()}
+                {recording.duration.toFixed(2)}s • {(recording.blob.size / 1024).toFixed(1)} KB
+              </p>
+              <p className="text-xs text-gray-500">
+                {recording.createdAt.toLocaleString()}
               </p>
             </div>
 
@@ -60,19 +84,21 @@ export const RecordingsList = () => {
               <button
                 onClick={() => handleSelect(recording)}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm transition"
+                title="Load this recording for playback"
               >
                 Load
               </button>
               <button
                 onClick={() => handleDownload(recording)}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm transition"
-                disabled={!currentAudioBuffer}
+                title="Download as WAV file to your Downloads folder"
               >
                 Save
               </button>
               <button
                 onClick={() => handleDelete(recording.id)}
                 className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition"
+                title="Delete this recording permanently"
               >
                 Delete
               </button>
