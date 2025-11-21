@@ -303,7 +303,7 @@ function drawGrid(
   }
 }
 
-// Draw filter band highlight
+// Draw filter band - INVERTED: grey out filtered areas, show passband clear
 function drawFilterBand(
   ctx: CanvasRenderingContext2D,
   height: number,
@@ -334,32 +334,37 @@ function drawFilterBand(
     yLow = height - ((lowPass - minFreq) / (maxFreq - minFreq)) * height;
   }
 
-  // Draw semi-transparent overlay for active filter band
-  ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
-  ctx.fillRect(0, yLow, ctx.canvas.width, yHigh - yLow);
+  // INVERTED: Draw grey overlay on FILTERED areas (outside passband)
+  ctx.fillStyle = 'rgba(128, 128, 128, 0.6)'; // Grey, more opaque
 
-  // Draw border lines for filter band
-  ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)';
+  // Grey out frequencies ABOVE low-pass (filtered out)
+  ctx.fillRect(0, 0, ctx.canvas.width, yLow);
+
+  // Grey out frequencies BELOW high-pass (filtered out)
+  ctx.fillRect(0, yHigh, ctx.canvas.width, height - yHigh);
+
+  // Draw border lines for filter cutoffs
+  ctx.strokeStyle = 'rgba(255, 100, 100, 0.9)'; // Red lines for cutoffs
   ctx.lineWidth = 2;
 
-  // High-pass line (bottom of band)
+  // High-pass cutoff line (bottom of passband)
   ctx.beginPath();
   ctx.moveTo(0, yHigh);
   ctx.lineTo(ctx.canvas.width, yHigh);
   ctx.stroke();
 
-  // Low-pass line (top of band)
+  // Low-pass cutoff line (top of passband)
   ctx.beginPath();
   ctx.moveTo(0, yLow);
   ctx.lineTo(ctx.canvas.width, yLow);
   ctx.stroke();
 
   // Add labels
-  ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
+  ctx.fillStyle = 'rgba(255, 100, 100, 1)'; // Red text
   ctx.font = 'bold 11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`${highPass} Hz`, ctx.canvas.width - 5, yHigh - 5);
-  ctx.fillText(`${lowPass} Hz`, ctx.canvas.width - 5, yLow + 15);
+  ctx.fillText(`${highPass} Hz ↑ HIGH-PASS`, ctx.canvas.width - 5, yHigh - 5);
+  ctx.fillText(`${lowPass} Hz ↓ LOW-PASS`, ctx.canvas.width - 5, yLow + 15);
 }
 
 // Draw frequency axis labels

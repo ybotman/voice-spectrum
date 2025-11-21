@@ -119,25 +119,30 @@ export const useAudioPlayback = () => {
       };
     }
 
-    // Setup audio chain with proper connections to speakers
+    // Setup audio chain with SPLIT PATH:
+    // 1. Source -> Analyser (for visualization of FULL spectrum)
+    // 2. Source -> Filters -> Speakers (for filtered audio playback)
     if (filterSettings.enabled) {
       const filters = setupFilters();
       if (filters) {
-        // Audio chain: source -> high-pass filters (4x) -> low-pass filters (4x) -> analyser -> speakers
+        // Path 1: Full spectrum visualization (unfiltered)
+        source.connect(analyserNode);
+
+        // Path 2: Filtered audio to speakers
         source.connect(filters.highPassFirst);
         filters.highPassLast.connect(filters.lowPassFirst);
-        filters.lowPassLast.connect(analyserNode);
-        analyserNode.connect(audioContext.destination);
+        filters.lowPassLast.connect(audioContext.destination);
 
         console.log('BRICK-WALL filter active:',
           'High-pass at', filterSettings.highPassCutoff, 'Hz (8th order, -96dB/octave)',
           'Low-pass at', filterSettings.lowPassCutoff, 'Hz (8th order, -96dB/octave)',
-          '→ Near-perfect square response');
+          '→ Full spectrum shown, filtered audio played');
       } else {
         source.connect(analyserNode);
         analyserNode.connect(audioContext.destination);
       }
     } else {
+      // No filtering: direct path
       source.connect(analyserNode);
       analyserNode.connect(audioContext.destination);
     }
