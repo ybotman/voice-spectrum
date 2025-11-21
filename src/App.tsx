@@ -22,7 +22,7 @@ function App() {
       <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-4xl font-bold">Voice Spectrum Analyzer</h1>
-          <p className="text-blue-100 mt-2">Real-time audio frequency visualization and filtering</p>
+          <p className="text-blue-100 mt-2">Demonstrating that all sounds are composed of simple sine waves</p>
         </div>
       </header>
 
@@ -75,12 +75,22 @@ function App() {
                   </div>
 
                   <section className="mb-8">
-                    <h3 className="text-2xl font-bold mb-3">🎯 Project Goals</h3>
+                    <h3 className="text-2xl font-bold mb-3">🎯 Core Mission</h3>
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 p-6 rounded-lg">
+                      <p className="text-lg text-gray-800 leading-relaxed">
+                        This application demonstrates the fundamental principle that <strong>all sounds—voice, instruments, environmental noise—are composed entirely of simple sinusoidal waves at different frequencies</strong>. By isolating narrow frequency bands with extreme precision filters, you can hear individual sine wave components that combine to create what we perceive as complex sounds. When you filter to just 75-125 Hz and hear only a pure tone from a voice recording, you're experiencing the fundamental frequency isolated from its harmonics, proving that even rich, recognizable sounds are built from basic sine waves stacked at multiples of the fundamental.
+                      </p>
+                    </div>
+                  </section>
+
+                  <section className="mb-8">
+                    <h3 className="text-2xl font-bold mb-3">📋 Project Goals</h3>
                     <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                      <li><strong>Demonstrate Wave Composition:</strong> Prove all sounds are made of simple sine waves through interactive filtering</li>
                       <li><strong>Real-time Frequency Analysis:</strong> Visualize audio spectrum in real-time with high resolution (8192 FFT size)</li>
-                      <li><strong>Precision Filtering:</strong> Isolate specific frequency bands with extreme brick-wall filters (16th-order, -192dB/octave)</li>
+                      <li><strong>Precision Isolation:</strong> Extract individual frequency components with extreme brick-wall filters (16th-order, -192dB/octave)</li>
                       <li><strong>Harmonic Analysis:</strong> Study fundamental frequencies and overtones in voice and musical instruments</li>
-                      <li><strong>Educational Tool:</strong> Learn about frequency domains, harmonics, and audio processing</li>
+                      <li><strong>Educational Tool:</strong> Learn about frequency domains, harmonics, and Fourier analysis through direct experience</li>
                       <li><strong>Research Platform:</strong> Analyze voice characteristics, musical timbre, and acoustic properties</li>
                     </ul>
                   </section>
