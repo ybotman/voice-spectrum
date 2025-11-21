@@ -4,6 +4,7 @@ import { RecordingsList } from './components/RecordingsList';
 import { FilterControls } from './components/FilterControls';
 import { Spectrogram } from './components/Spectrogram';
 import { DeviceInfo } from './components/DeviceInfo';
+import { TestToneGenerator } from './components/TestToneGenerator';
 import { useAudioContext } from './hooks/useAudioContext';
 import { useLoadRecordings } from './hooks/useLoadRecordings';
 
@@ -34,6 +35,9 @@ function App() {
       <main className="container mx-auto px-4 py-8">
         {/* Device Information */}
         <DeviceInfo />
+
+        {/* Test Tone Generator for Filter Testing */}
+        <TestToneGenerator />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Recording and Playback */}

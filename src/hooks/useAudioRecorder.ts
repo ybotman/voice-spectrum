@@ -23,15 +23,33 @@ export const useAudioRecorder = () => {
     try {
       setError(null);
 
-      // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Request microphone access with constraints to prevent clipping
+      // Note: Not all browsers/devices support all constraints
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,  // Disable for pure audio capture
+          noiseSuppression: false,  // Disable to keep natural harmonics
+          autoGainControl: false,   // CRITICAL: Disable AGC to prevent distortion
+          sampleRate: 48000         // Higher sample rate for better quality
+        }
+      });
 
       // Connect microphone to analyser for real-time visualization
+      // Add a gain node to control input level and prevent clipping
+      let gainNode: GainNode | null = null;
       if (audioContext && analyserNode) {
         const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyserNode);
+
+        // Create gain node to reduce input level (prevent clipping)
+        gainNode = audioContext.createGain();
+        gainNode.gain.value = 0.5; // Reduce to 50% to prevent clipping
+
+        source.connect(gainNode);
+        gainNode.connect(analyserNode);
         sourceNodeRef.current = source;
-        console.log('Microphone connected to analyser for real-time monitoring');
+
+        console.log('Microphone connected with gain control (50%) to prevent clipping');
+        console.log('Audio constraints: AGC=off, NoiseSuppression=off, EchoCancellation=off');
       }
 
       // Create MediaRecorder

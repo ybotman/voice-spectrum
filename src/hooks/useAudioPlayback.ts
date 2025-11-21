@@ -135,10 +135,19 @@ export const useAudioPlayback = () => {
         filters.highPassLast.connect(filters.lowPassFirst);
         filters.lowPassLast.connect(audioContext.destination);
 
-        console.log('EXTREME BRICK-WALL filter active:',
-          'High-pass at', filterSettings.highPassCutoff, 'Hz (16th order, -192dB/octave)',
-          'Low-pass at', filterSettings.lowPassCutoff, 'Hz (16th order, -192dB/octave)',
-          '→ Near-perfect square cutoff | Full spectrum shown, filtered audio played');
+        // Calculate expected attenuation at key frequencies for debugging
+        const bandwidth = filterSettings.lowPassCutoff - filterSettings.highPassCutoff;
+        const firstHarmonic = filterSettings.highPassCutoff * 2; // 200Hz if filtering 100Hz
+        const octavesAboveLowPass = Math.log2(firstHarmonic / filterSettings.lowPassCutoff);
+        const attenuationAtSecondHarmonic = octavesAboveLowPass * -192; // dB
+
+        console.log('EXTREME BRICK-WALL filter active:');
+        console.log('  High-pass:', filterSettings.highPassCutoff, 'Hz (16th order, -192dB/octave)');
+        console.log('  Low-pass:', filterSettings.lowPassCutoff, 'Hz (16th order, -192dB/octave)');
+        console.log('  Passband width:', bandwidth.toFixed(1), 'Hz');
+        console.log('  Expected attenuation at 2nd harmonic (2x):', attenuationAtSecondHarmonic.toFixed(1), 'dB');
+        console.log('  Audio path: Source → 32 cascaded filters → Speakers');
+        console.log('  Visual path: Source → Analyser (unfiltered for full spectrum view)');
       } else {
         source.connect(analyserNode);
         analyserNode.connect(audioContext.destination);
