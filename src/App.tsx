@@ -5,6 +5,7 @@ import { FilterControls } from './components/FilterControls';
 import { Spectrogram } from './components/Spectrogram';
 import { DeviceInfo } from './components/DeviceInfo';
 import { TestToneGenerator } from './components/TestToneGenerator';
+import { TabNavigation } from './components/TabNavigation';
 import { useAudioContext } from './hooks/useAudioContext';
 import { useLoadRecordings } from './hooks/useLoadRecordings';
 
@@ -33,26 +34,36 @@ function App() {
       )}
 
       <main className="container mx-auto px-4 py-8">
-        {/* Device Information */}
-        <DeviceInfo />
+        <TabNavigation>
+          {(activeTab) => (
+            <>
+              {/* Tab 1: Spectrum Visualization */}
+              {activeTab === 'spectrum' && (
+                <div className="space-y-6">
+                  <FilterControls />
+                  <AudioPlayback />
+                  <Spectrogram />
+                </div>
+              )}
 
-        {/* Test Tone Generator for Filter Testing */}
-        <TestToneGenerator />
+              {/* Tab 2: Recordings */}
+              {activeTab === 'recordings' && (
+                <div className="space-y-6">
+                  <AudioRecorder />
+                  <RecordingsList />
+                </div>
+              )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column - Recording and Playback */}
-          <div>
-            <AudioRecorder />
-            <AudioPlayback />
-            <RecordingsList />
-          </div>
-
-          {/* Right Column - Filters and Visualization */}
-          <div>
-            <FilterControls />
-            <Spectrogram />
-          </div>
-        </div>
+              {/* Tab 3: Config/Test */}
+              {activeTab === 'config' && (
+                <div className="space-y-6">
+                  <DeviceInfo />
+                  <TestToneGenerator />
+                </div>
+              )}
+            </>
+          )}
+        </TabNavigation>
       </main>
 
       <footer className="bg-gray-800 text-white mt-12">

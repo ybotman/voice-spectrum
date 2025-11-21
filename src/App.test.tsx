@@ -8,14 +8,16 @@ test('renders voice spectrum analyzer', () => {
   expect(heading).toBeInTheDocument();
 });
 
-test('renders audio recorder component', () => {
+test('renders tab navigation', () => {
   render(<App />);
-  const recorderHeading = screen.getByText(/Audio Recorder/i);
-  expect(recorderHeading).toBeInTheDocument();
+  // Check for tabs
+  const spectrumTab = screen.getByText(/📊 Spectrum/i);
+  expect(spectrumTab).toBeInTheDocument();
 });
 
-test('renders start recording button', () => {
+test('renders spectrum tab by default', () => {
   render(<App />);
-  const startButton = screen.getByRole('button', { name: /● Start Recording/i });
-  expect(startButton).toBeInTheDocument();
+  // Spectrum tab should show FilterControls
+  const filterControls = screen.getByText(/Band-Pass Filter/i);
+  expect(filterControls).toBeInTheDocument();
 });
