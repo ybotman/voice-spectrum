@@ -80,14 +80,14 @@ const initialState = {
   },
 
   spectrogramSettings: {
-    frequencyScale: 'linear' as const,
+    frequencyScale: 'logarithmic' as const, // Default to log (better for low freq resolution)
     minFrequency: 0,
     maxFrequency: 20000,
     colorScheme: 'hot' as const
   },
 
   visualizationSettings: {
-    fftSize: 2048,
+    fftSize: 8192, // Increased from 2048 for better low-frequency resolution
     smoothingTimeConstant: 0.8,
     minDecibels: -90,
     maxDecibels: -10

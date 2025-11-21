@@ -21,6 +21,11 @@ export const useAudioContext = () => {
       // Note: Do NOT connect analyser to destination here
       // It will be connected dynamically during playback to allow filter insertion
       const analyser = ctx.createAnalyser();
+
+      // FFT size 8192 provides better frequency resolution, especially at low frequencies
+      // Frequency resolution = sampleRate / fftSize
+      // At 48kHz: 48000/8192 = ~5.86 Hz per bin (vs 2048 = 23.4 Hz per bin)
+      // This gives 4x better resolution for low frequencies
       analyser.fftSize = visualizationSettings.fftSize;
       analyser.smoothingTimeConstant = visualizationSettings.smoothingTimeConstant;
       analyser.minDecibels = visualizationSettings.minDecibels;
