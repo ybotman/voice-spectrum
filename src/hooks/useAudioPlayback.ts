@@ -145,16 +145,20 @@ export const useAudioPlayback = () => {
   }, [setPlaybackState]);
 
   const pause = useCallback(() => {
-    if (audioContext && playbackState === PlaybackState.PLAYING) {
+    if (audioContext && audioContext.state !== 'closed' && playbackState === PlaybackState.PLAYING) {
       audioContext.suspend();
       setPlaybackState(PlaybackState.PAUSED);
+    } else if (audioContext?.state === 'closed') {
+      console.error('Cannot pause: AudioContext is closed');
     }
   }, [audioContext, playbackState, setPlaybackState]);
 
   const resume = useCallback(async () => {
-    if (audioContext && playbackState === PlaybackState.PAUSED) {
+    if (audioContext && audioContext.state !== 'closed' && playbackState === PlaybackState.PAUSED) {
       await audioContext.resume();
       setPlaybackState(PlaybackState.PLAYING);
+    } else if (audioContext?.state === 'closed') {
+      console.error('Cannot resume: AudioContext is closed');
     }
   }, [audioContext, playbackState, setPlaybackState]);
 
