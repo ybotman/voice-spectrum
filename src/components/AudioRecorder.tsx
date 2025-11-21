@@ -1,5 +1,6 @@
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { RecordingState } from '../types/audio';
+import { AudioLevelMeter } from './AudioLevelMeter';
 
 export const AudioRecorder = () => {
   const {
@@ -24,6 +25,8 @@ export const AudioRecorder = () => {
           {error}
         </div>
       )}
+
+      <AudioLevelMeter />
 
       <div className="flex gap-3">
         {isIdle && (
