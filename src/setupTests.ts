@@ -6,12 +6,18 @@ import '@testing-library/jest-dom';
 
 // Mock Web Audio API
 class MockAudioContext {
+  get sampleRate() {
+    return 48000;
+  }
+
   createAnalyser() {
     return {
       fftSize: 2048,
+      frequencyBinCount: 1024,
       smoothingTimeConstant: 0.8,
       minDecibels: -90,
       maxDecibels: -10,
+      context: { sampleRate: 48000 },
       connect: jest.fn(),
       disconnect: jest.fn(),
       getByteFrequencyData: jest.fn(),
@@ -122,6 +128,45 @@ Object.defineProperty(global.navigator, 'mediaDevices', {
   },
   writable: true
 });
+
+// Mock Canvas for Spectrogram
+(global as any).HTMLCanvasElement.prototype.getContext = function() {
+  return {
+    fillStyle: '',
+    strokeStyle: '',
+    font: '',
+    textAlign: '',
+    fillRect: jest.fn(),
+    fillText: jest.fn(),
+    strokeRect: jest.fn(),
+    clearRect: jest.fn(),
+    getImageData: jest.fn(() => ({
+      data: new Uint8ClampedArray(4)
+    })),
+    putImageData: jest.fn(),
+    createImageData: jest.fn(() => ({
+      data: new Uint8ClampedArray(800 * 400 * 4)
+    })),
+    setTransform: jest.fn(),
+    drawImage: jest.fn(),
+    save: jest.fn(),
+    restore: jest.fn(),
+    beginPath: jest.fn(),
+    moveTo: jest.fn(),
+    lineTo: jest.fn(),
+    closePath: jest.fn(),
+    stroke: jest.fn(),
+    translate: jest.fn(),
+    scale: jest.fn(),
+    rotate: jest.fn(),
+    arc: jest.fn(),
+    fill: jest.fn(),
+    measureText: jest.fn(() => ({ width: 0 })),
+    transform: jest.fn(),
+    rect: jest.fn(),
+    clip: jest.fn()
+  };
+};
 
 // Add mocks to global
 (global as any).AudioContext = MockAudioContext;

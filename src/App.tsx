@@ -2,6 +2,8 @@ import { AudioRecorder } from './components/AudioRecorder';
 import { AudioPlayback } from './components/AudioPlayback';
 import { RecordingsList } from './components/RecordingsList';
 import { FilterControls } from './components/FilterControls';
+import { Spectrogram } from './components/Spectrogram';
+import { SpectrogramControls } from './components/SpectrogramControls';
 import { useAudioContext } from './hooks/useAudioContext';
 import { useLoadRecordings } from './hooks/useLoadRecordings';
 
@@ -41,13 +43,8 @@ function App() {
           {/* Right Column - Filters and Visualization */}
           <div>
             <FilterControls />
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold mb-4">Spectrogram Visualization</h2>
-              <div className="bg-gray-200 rounded h-96 flex items-center justify-center">
-                <p className="text-gray-600">Spectrogram visualization coming in VOICE-3</p>
-              </div>
-            </div>
+            <SpectrogramControls />
+            <Spectrogram />
           </div>
         </div>
       </main>
