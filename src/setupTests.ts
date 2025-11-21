@@ -124,7 +124,25 @@ Object.defineProperty(global.navigator, 'mediaDevices', {
           }
         ]
       })
-    )
+    ),
+    enumerateDevices: jest.fn(() =>
+      Promise.resolve([
+        {
+          deviceId: 'default',
+          kind: 'audioinput',
+          label: 'Default Microphone',
+          groupId: 'group1'
+        },
+        {
+          deviceId: 'default',
+          kind: 'audiooutput',
+          label: 'Default Speakers',
+          groupId: 'group2'
+        }
+      ])
+    ),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn()
   },
   writable: true
 });
