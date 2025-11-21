@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-type TabType = 'spectrum' | 'recordings' | 'config';
+type TabType = 'spectrum' | 'recordings' | 'config' | 'about';
 
 interface TabNavigationProps {
   children: (activeTab: TabType) => React.ReactNode;
@@ -12,7 +12,7 @@ export const TabNavigation = ({ children }: TabNavigationProps) => {
   // Load previously selected tab from localStorage
   useEffect(() => {
     const savedTab = localStorage.getItem('activeTab') as TabType;
-    if (savedTab && ['spectrum', 'recordings', 'config'].includes(savedTab)) {
+    if (savedTab && ['spectrum', 'recordings', 'config', 'about'].includes(savedTab)) {
       setActiveTab(savedTab);
     }
   }, []);
@@ -55,6 +55,16 @@ export const TabNavigation = ({ children }: TabNavigationProps) => {
           }`}
         >
           ⚙️ Config/Test
+        </button>
+        <button
+          onClick={() => handleTabChange('about')}
+          className={`flex-1 py-4 px-6 text-center font-semibold transition ${
+            activeTab === 'about'
+              ? 'bg-blue-500 text-white border-b-2 border-blue-600'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          ℹ️ About
         </button>
       </div>
 
