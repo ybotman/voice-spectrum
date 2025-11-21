@@ -16,7 +16,7 @@ export const AudioPlayback = () => {
   } = useAudioPlayback();
 
   const { audioContext } = useAudioContext();
-  const { selectedRecording, loopEnabled, setLoopEnabled, addRecording } = useAudioStore();
+  const { selectedRecording, loopEnabled, setLoopEnabled, setSelectedRecording, addRecording } = useAudioStore();
 
   const isPlaying = playbackState === PlaybackState.PLAYING;
   const isPaused = playbackState === PlaybackState.PAUSED;
@@ -40,9 +40,11 @@ export const AudioPlayback = () => {
       };
 
       addRecording(recording);
+      setSelectedRecording(recording);
       await loadAudio(recording);
 
       console.log('File loaded successfully:', audioBuffer.duration, 'seconds');
+      console.log('Recording selected and loaded. Ready to play.');
     } catch (err) {
       console.error('Failed to load audio file:', err);
       alert('Failed to load audio file. Please try a different file.');

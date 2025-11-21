@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useAudioStore } from '../store/audioStore';
 import { useAudioContext } from '../hooks/useAudioContext';
+import { PlaybackState } from '../types/audio';
 
 export const Spectrogram = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -9,7 +10,9 @@ export const Spectrogram = () => {
 
   const { analyserNode } = useAudioContext();
   const { playbackState, spectrogramSettings, filterSettings } = useAudioStore();
-  const isPlaying = playbackState === 'playing';
+  const isPlaying = playbackState === PlaybackState.PLAYING;
+
+  console.log('Spectrogram render - playbackState:', playbackState, 'isPlaying:', isPlaying, 'analyserNode:', !!analyserNode);
 
   useEffect(() => {
     if (!canvasRef.current || !analyserNode) return;
