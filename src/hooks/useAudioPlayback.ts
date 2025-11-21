@@ -112,7 +112,7 @@ export const useAudioPlayback = () => {
     setPlaybackState(PlaybackState.PLAYING);
 
     console.log('Playback started. Audio buffer:', currentAudioBuffer.length, 'samples,', currentAudioBuffer.duration, 'seconds');
-  }, [audioContext, currentAudioBuffer, analyserNode, filterSettings, setupFilters, setPlaybackState]);
+  }, [audioContext, currentAudioBuffer, analyserNode, filterSettings, loopEnabled, setupFilters, setPlaybackState]);
 
   const stop = useCallback(() => {
     if (sourceNodeRef.current) {
