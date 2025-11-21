@@ -3,7 +3,6 @@ import { AudioPlayback } from './components/AudioPlayback';
 import { RecordingsList } from './components/RecordingsList';
 import { FilterControls } from './components/FilterControls';
 import { Spectrogram } from './components/Spectrogram';
-import { SpectrogramControls } from './components/SpectrogramControls';
 import { DeviceInfo } from './components/DeviceInfo';
 import { useAudioContext } from './hooks/useAudioContext';
 import { useLoadRecordings } from './hooks/useLoadRecordings';
@@ -47,7 +46,6 @@ function App() {
           {/* Right Column - Filters and Visualization */}
           <div>
             <FilterControls />
-            <SpectrogramControls />
             <Spectrogram />
           </div>
         </div>

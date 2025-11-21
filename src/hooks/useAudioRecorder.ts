@@ -90,6 +90,10 @@ export const useAudioRecorder = () => {
 
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
+
+        // Reset recording state to IDLE so we can record again
+        setRecordingState(RecordingState.IDLE);
+        console.log('Recording complete. State reset to IDLE. Ready to record again.');
       };
 
       // Start recording with timeslice to ensure data is captured periodically
@@ -107,11 +111,11 @@ export const useAudioRecorder = () => {
   }, [setRecordingState, setCurrentRecording, addRecording, audioContext, analyserNode]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && recordingState === RecordingState.RECORDING) {
+    if (mediaRecorderRef.current && (recordingState === RecordingState.RECORDING || recordingState === RecordingState.PAUSED)) {
       mediaRecorderRef.current.stop();
-      setRecordingState(RecordingState.STOPPED);
+      // State will be set to IDLE in onstop handler
     }
-  }, [recordingState, setRecordingState]);
+  }, [recordingState]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorderRef.current && recordingState === RecordingState.RECORDING) {

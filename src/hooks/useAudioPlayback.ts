@@ -40,72 +40,52 @@ export const useAudioPlayback = () => {
     }
   }, [audioContext, setCurrentAudioBuffer]);
 
-  // Create and configure filters with steep rolloff for aggressive band-pass
+  // Create and configure filters with extreme rolloff approaching brick-wall
   const setupFilters = useCallback(() => {
     if (!audioContext || !analyserNode) return null;
 
-    // Create multiple cascaded high-pass filters for steeper rolloff
-    // Each additional filter adds -12dB/octave, so 4 filters = -48dB/octave
-    const highPass1 = audioContext.createBiquadFilter();
-    highPass1.type = 'highpass';
-    highPass1.frequency.value = filterSettings.highPassCutoff;
-    highPass1.Q.value = 0.7071; // Butterworth response (flat passband)
+    // Create 8-stage cascaded filters for near brick-wall response
+    // 8 filters = -96dB/octave rolloff (approaching square wave response)
+    const highPassFilters: BiquadFilterNode[] = [];
+    const lowPassFilters: BiquadFilterNode[] = [];
 
-    const highPass2 = audioContext.createBiquadFilter();
-    highPass2.type = 'highpass';
-    highPass2.frequency.value = filterSettings.highPassCutoff;
-    highPass2.Q.value = 0.7071;
+    // Create 8 high-pass filters
+    for (let i = 0; i < 8; i++) {
+      const filter = audioContext.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = filterSettings.highPassCutoff;
+      filter.Q.value = 0.7071; // Butterworth response (maximally flat)
+      highPassFilters.push(filter);
+    }
 
-    const highPass3 = audioContext.createBiquadFilter();
-    highPass3.type = 'highpass';
-    highPass3.frequency.value = filterSettings.highPassCutoff;
-    highPass3.Q.value = 0.7071;
-
-    const highPass4 = audioContext.createBiquadFilter();
-    highPass4.type = 'highpass';
-    highPass4.frequency.value = filterSettings.highPassCutoff;
-    highPass4.Q.value = 0.7071;
-
-    // Create multiple cascaded low-pass filters for steeper rolloff
-    const lowPass1 = audioContext.createBiquadFilter();
-    lowPass1.type = 'lowpass';
-    lowPass1.frequency.value = filterSettings.lowPassCutoff;
-    lowPass1.Q.value = 0.7071;
-
-    const lowPass2 = audioContext.createBiquadFilter();
-    lowPass2.type = 'lowpass';
-    lowPass2.frequency.value = filterSettings.lowPassCutoff;
-    lowPass2.Q.value = 0.7071;
-
-    const lowPass3 = audioContext.createBiquadFilter();
-    lowPass3.type = 'lowpass';
-    lowPass3.frequency.value = filterSettings.lowPassCutoff;
-    lowPass3.Q.value = 0.7071;
-
-    const lowPass4 = audioContext.createBiquadFilter();
-    lowPass4.type = 'lowpass';
-    lowPass4.frequency.value = filterSettings.lowPassCutoff;
-    lowPass4.Q.value = 0.7071;
+    // Create 8 low-pass filters
+    for (let i = 0; i < 8; i++) {
+      const filter = audioContext.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = filterSettings.lowPassCutoff;
+      filter.Q.value = 0.7071;
+      lowPassFilters.push(filter);
+    }
 
     // Chain high-pass filters together
-    highPass1.connect(highPass2);
-    highPass2.connect(highPass3);
-    highPass3.connect(highPass4);
+    for (let i = 0; i < highPassFilters.length - 1; i++) {
+      highPassFilters[i].connect(highPassFilters[i + 1]);
+    }
 
     // Chain low-pass filters together
-    lowPass1.connect(lowPass2);
-    lowPass2.connect(lowPass3);
-    lowPass3.connect(lowPass4);
+    for (let i = 0; i < lowPassFilters.length - 1; i++) {
+      lowPassFilters[i].connect(lowPassFilters[i + 1]);
+    }
 
     // Store all filters for real-time updates
-    highPassFiltersRef.current = [highPass1, highPass2, highPass3, highPass4];
-    lowPassFiltersRef.current = [lowPass1, lowPass2, lowPass3, lowPass4];
+    highPassFiltersRef.current = highPassFilters;
+    lowPassFiltersRef.current = lowPassFilters;
 
     return {
-      highPassFirst: highPass1,
-      highPassLast: highPass4,
-      lowPassFirst: lowPass1,
-      lowPassLast: lowPass4
+      highPassFirst: highPassFilters[0],
+      highPassLast: highPassFilters[highPassFilters.length - 1],
+      lowPassFirst: lowPassFilters[0],
+      lowPassLast: lowPassFilters[lowPassFilters.length - 1]
     };
   }, [audioContext, analyserNode, filterSettings]);
 
@@ -149,9 +129,10 @@ export const useAudioPlayback = () => {
         filters.lowPassLast.connect(analyserNode);
         analyserNode.connect(audioContext.destination);
 
-        console.log('Filter chain active:',
-          'High-pass at', filterSettings.highPassCutoff, 'Hz (4th order, -48dB/octave)',
-          'Low-pass at', filterSettings.lowPassCutoff, 'Hz (4th order, -48dB/octave)');
+        console.log('BRICK-WALL filter active:',
+          'High-pass at', filterSettings.highPassCutoff, 'Hz (8th order, -96dB/octave)',
+          'Low-pass at', filterSettings.lowPassCutoff, 'Hz (8th order, -96dB/octave)',
+          '→ Near-perfect square response');
       } else {
         source.connect(analyserNode);
         analyserNode.connect(audioContext.destination);

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAudioStore } from '../store/audioStore';
 import { useAudioContext } from '../hooks/useAudioContext';
 import { PlaybackState } from '../types/audio';
@@ -7,9 +7,11 @@ export const Spectrogram = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
   const spectrogramDataRef = useRef<ImageData | null>(null);
+  const [isDraggingHighPass, setIsDraggingHighPass] = useState(false);
+  const [isDraggingLowPass, setIsDraggingLowPass] = useState(false);
 
   const { analyserNode } = useAudioContext();
-  const { playbackState, spectrogramSettings, filterSettings } = useAudioStore();
+  const { playbackState, spectrogramSettings, filterSettings, setSpectrogramSettings, setFilterSettings } = useAudioStore();
   const isPlaying = playbackState === PlaybackState.PLAYING;
 
   console.log('Spectrogram render - playbackState:', playbackState, 'isPlaying:', isPlaying, 'analyserNode:', !!analyserNode);
@@ -128,16 +130,101 @@ export const Spectrogram = () => {
     };
   }, [analyserNode, isPlaying, spectrogramSettings, filterSettings]);
 
+  const toggleScale = () => {
+    setSpectrogramSettings({
+      ...spectrogramSettings,
+      frequencyScale: spectrogramSettings.frequencyScale === 'linear' ? 'logarithmic' : 'linear'
+    });
+  };
+
+  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const width = rect.width;
+
+    // Left 10% for high-pass drag
+    if (x < width * 0.1) {
+      setIsDraggingHighPass(true);
+    }
+    // Right 10% for low-pass drag
+    else if (x > width * 0.9) {
+      setIsDraggingLowPass(true);
+    }
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return;
+    if (!isDraggingHighPass && !isDraggingLowPass) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+
+    // Convert Y position to frequency
+    const { minFrequency, maxFrequency, frequencyScale } = spectrogramSettings;
+    let freq;
+
+    if (frequencyScale === 'logarithmic') {
+      const logMin = Math.log(Math.max(minFrequency, 20));
+      const logMax = Math.log(maxFrequency);
+      const logFreq = logMax - (y / height) * (logMax - logMin);
+      freq = Math.exp(logFreq);
+    } else {
+      freq = maxFrequency - (y / height) * (maxFrequency - minFrequency);
+    }
+
+    freq = Math.max(20, Math.min(20000, Math.round(freq)));
+
+    if (isDraggingHighPass) {
+      setFilterSettings({
+        ...filterSettings,
+        highPassCutoff: Math.min(freq, filterSettings.lowPassCutoff - 50),
+        enabled: true
+      });
+    } else if (isDraggingLowPass) {
+      setFilterSettings({
+        ...filterSettings,
+        lowPassCutoff: Math.max(freq, filterSettings.highPassCutoff + 50),
+        enabled: true
+      });
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    setIsDraggingHighPass(false);
+    setIsDraggingLowPass(false);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-4">Spectrogram Visualization</h2>
-      <div className="bg-gray-800 rounded overflow-hidden">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">Spectrogram Visualization</h2>
+        <button
+          onClick={toggleScale}
+          className={`px-4 py-2 rounded font-semibold transition text-sm ${
+            spectrogramSettings.frequencyScale === 'logarithmic'
+              ? 'bg-purple-500 hover:bg-purple-600 text-white'
+              : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+          }`}
+        >
+          {spectrogramSettings.frequencyScale === 'linear' ? 'Linear' : 'Log'}
+        </button>
+      </div>
+      <div className="bg-gray-800 rounded overflow-hidden relative">
         <canvas
           ref={canvasRef}
           width={800}
           height={400}
-          className="w-full"
+          className="w-full cursor-ew-resize"
+          onMouseDown={handleCanvasMouseDown}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseUp={handleCanvasMouseUp}
+          onMouseLeave={handleCanvasMouseUp}
         />
+      </div>
+      <div className="mt-2 text-xs text-gray-500 text-center">
+        Click left edge to drag high-pass filter • Click right edge to drag low-pass filter
       </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-gray-600">
