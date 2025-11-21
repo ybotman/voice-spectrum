@@ -40,26 +40,28 @@ export const useAudioPlayback = () => {
     }
   }, [audioContext, setCurrentAudioBuffer]);
 
-  // Create and configure filters with extreme rolloff approaching brick-wall
+  // Create and configure filters with MAXIMUM rolloff for brick-wall response
   const setupFilters = useCallback(() => {
     if (!audioContext || !analyserNode) return null;
 
-    // Create 8-stage cascaded filters for near brick-wall response
-    // 8 filters = -96dB/octave rolloff (approaching square wave response)
+    // Create 16-stage cascaded filters for extreme brick-wall response
+    // 16 filters = -192dB/octave rolloff (near-perfect square cutoff)
+    // At 1 octave out: -192dB (complete silence)
+    // At 0.5 octave out: -96dB (essentially silent)
     const highPassFilters: BiquadFilterNode[] = [];
     const lowPassFilters: BiquadFilterNode[] = [];
 
-    // Create 8 high-pass filters
-    for (let i = 0; i < 8; i++) {
+    // Create 16 high-pass filters
+    for (let i = 0; i < 16; i++) {
       const filter = audioContext.createBiquadFilter();
       filter.type = 'highpass';
       filter.frequency.value = filterSettings.highPassCutoff;
-      filter.Q.value = 0.7071; // Butterworth response (maximally flat)
+      filter.Q.value = 0.7071; // Butterworth response (maximally flat passband)
       highPassFilters.push(filter);
     }
 
-    // Create 8 low-pass filters
-    for (let i = 0; i < 8; i++) {
+    // Create 16 low-pass filters
+    for (let i = 0; i < 16; i++) {
       const filter = audioContext.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.value = filterSettings.lowPassCutoff;
@@ -133,10 +135,10 @@ export const useAudioPlayback = () => {
         filters.highPassLast.connect(filters.lowPassFirst);
         filters.lowPassLast.connect(audioContext.destination);
 
-        console.log('BRICK-WALL filter active:',
-          'High-pass at', filterSettings.highPassCutoff, 'Hz (8th order, -96dB/octave)',
-          'Low-pass at', filterSettings.lowPassCutoff, 'Hz (8th order, -96dB/octave)',
-          '→ Full spectrum shown, filtered audio played');
+        console.log('EXTREME BRICK-WALL filter active:',
+          'High-pass at', filterSettings.highPassCutoff, 'Hz (16th order, -192dB/octave)',
+          'Low-pass at', filterSettings.lowPassCutoff, 'Hz (16th order, -192dB/octave)',
+          '→ Near-perfect square cutoff | Full spectrum shown, filtered audio played');
       } else {
         source.connect(analyserNode);
         analyserNode.connect(audioContext.destination);
