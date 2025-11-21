@@ -20,6 +20,7 @@ interface AudioState {
   playbackState: PlaybackState;
   currentAudioBuffer: AudioBuffer | null;
   selectedRecording: AudioRecording | null;
+  loopEnabled: boolean;
 
   // Audio context
   audioContext: AudioContext | null;
@@ -41,6 +42,7 @@ interface AudioState {
   setPlaybackState: (state: PlaybackState) => void;
   setCurrentAudioBuffer: (buffer: AudioBuffer | null) => void;
   setSelectedRecording: (recording: AudioRecording | null) => void;
+  setLoopEnabled: (enabled: boolean) => void;
 
   setAudioContext: (context: AudioContext | null) => void;
   setAnalyserNode: (node: AnalyserNode | null) => void;
@@ -61,6 +63,7 @@ const initialState = {
   playbackState: PlaybackState.IDLE,
   currentAudioBuffer: null,
   selectedRecording: null,
+  loopEnabled: true,
 
   audioContext: null,
   analyserNode: null,
@@ -113,6 +116,7 @@ export const useAudioStore = create<AudioState>((set) => ({
   setPlaybackState: (playbackState) => set({ playbackState }),
   setCurrentAudioBuffer: (currentAudioBuffer) => set({ currentAudioBuffer }),
   setSelectedRecording: (selectedRecording) => set({ selectedRecording }),
+  setLoopEnabled: (loopEnabled) => set({ loopEnabled }),
 
   setAudioContext: (audioContext) => set({ audioContext }),
   setAnalyserNode: (analyserNode) => set({ analyserNode }),

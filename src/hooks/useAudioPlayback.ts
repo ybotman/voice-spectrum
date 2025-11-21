@@ -9,6 +9,7 @@ export const useAudioPlayback = () => {
     currentAudioBuffer,
     selectedRecording,
     filterSettings,
+    loopEnabled,
     setPlaybackState,
     setCurrentAudioBuffer
   } = useAudioStore();
@@ -77,8 +78,15 @@ export const useAudioPlayback = () => {
     // Create source node
     const source = audioContext.createBufferSource();
     source.buffer = currentAudioBuffer;
-    source.loop = true; // Enable looping
+    source.loop = loopEnabled; // Enable/disable looping based on user preference
     sourceNodeRef.current = source;
+
+    // If not looping, stop playback when audio ends
+    if (!loopEnabled) {
+      source.onended = () => {
+        setPlaybackState(PlaybackState.STOPPED);
+      };
+    }
 
     // Setup audio chain with proper connections to speakers
     if (filterSettings.enabled) {
