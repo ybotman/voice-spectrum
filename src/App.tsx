@@ -2,6 +2,7 @@ import { AudioRecorder } from './components/AudioRecorder';
 import { AudioPlayback } from './components/AudioPlayback';
 import { RecordingsList } from './components/RecordingsList';
 import { SampleAudioLoader } from './components/SampleAudioLoader';
+import { AudioTrimmer } from './components/AudioTrimmer';
 import { FilterControls } from './components/FilterControls';
 import { Spectrogram } from './components/Spectrogram';
 import { DeviceInfo } from './components/DeviceInfo';
@@ -52,6 +53,7 @@ function App() {
                 <div className="space-y-6">
                   <AudioRecorder />
                   <SampleAudioLoader />
+                  <AudioTrimmer />
                   <RecordingsList />
                 </div>
               )}
