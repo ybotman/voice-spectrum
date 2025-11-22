@@ -105,40 +105,40 @@ export const FilterControls = () => {
 
         {/* Presets */}
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Presets:</p>
+          <p className="text-sm font-medium text-gray-700 mb-2">Vocal Range Presets (100 Hz wide):</p>
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => {
-                setLocalHighPass(200);
-                setLocalLowPass(3000);
-                handleHighPassChange(200);
-                handleLowPassChange(3000);
+                setLocalHighPass(50);
+                setLocalLowPass(150);
+                handleHighPassChange(50);
+                handleLowPassChange(150);
               }}
               className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
             >
-              Vocal (200-3000 Hz)
+              Low Vocal (50-150 Hz)
             </button>
             <button
               onClick={() => {
-                setLocalHighPass(60);
-                setLocalLowPass(250);
-                handleHighPassChange(60);
-                handleLowPassChange(250);
+                setLocalHighPass(100);
+                setLocalLowPass(200);
+                handleHighPassChange(100);
+                handleLowPassChange(200);
               }}
               className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
             >
-              Bass (60-250 Hz)
+              Mid Vocal (100-200 Hz)
             </button>
             <button
               onClick={() => {
-                setLocalHighPass(200);
-                setLocalLowPass(1500);
-                handleHighPassChange(200);
-                handleLowPassChange(1500);
+                setLocalHighPass(300);
+                setLocalLowPass(400);
+                handleHighPassChange(300);
+                handleLowPassChange(400);
               }}
               className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
             >
-              Trumpet (200-1500 Hz)
+              High Vocal (300-400 Hz)
             </button>
             <button
               onClick={() => {

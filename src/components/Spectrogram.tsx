@@ -9,6 +9,8 @@ export const Spectrogram = () => {
   const spectrogramDataRef = useRef<ImageData | null>(null);
   const [isDraggingHighPass, setIsDraggingHighPass] = useState(false);
   const [isDraggingLowPass, setIsDraggingLowPass] = useState(false);
+  const [isDraggingBand, setIsDraggingBand] = useState(false);
+  const [bandDragStart, setBandDragStart] = useState<{ freq: number; highPass: number; lowPass: number } | null>(null);
 
   const { analyserNode } = useAudioContext();
   const { playbackState, spectrogramSettings, filterSettings, setSpectrogramSettings, setFilterSettings } = useAudioStore();
@@ -141,7 +143,24 @@ export const Spectrogram = () => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     const width = rect.width;
+    const height = rect.height;
+
+    // Calculate frequency at click position
+    const { minFrequency, maxFrequency, frequencyScale } = spectrogramSettings;
+    let freq;
+
+    if (frequencyScale === 'logarithmic') {
+      const logMin = Math.log(Math.max(minFrequency, 20));
+      const logMax = Math.log(maxFrequency);
+      const logFreq = logMax - (y / height) * (logMax - logMin);
+      freq = Math.exp(logFreq);
+    } else {
+      freq = maxFrequency - (y / height) * (maxFrequency - minFrequency);
+    }
+
+    freq = Math.max(20, Math.min(20000, Math.round(freq)));
 
     // Left 10% for high-pass drag
     if (x < width * 0.1) {
@@ -151,11 +170,20 @@ export const Spectrogram = () => {
     else if (x > width * 0.9) {
       setIsDraggingLowPass(true);
     }
+    // Center 80% for band sliding
+    else {
+      setIsDraggingBand(true);
+      setBandDragStart({
+        freq,
+        highPass: filterSettings.highPassCutoff,
+        lowPass: filterSettings.lowPassCutoff
+      });
+    }
   };
 
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!canvasRef.current) return;
-    if (!isDraggingHighPass && !isDraggingLowPass) return;
+    if (!isDraggingHighPass && !isDraggingLowPass && !isDraggingBand) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
     const y = e.clientY - rect.top;
@@ -188,12 +216,39 @@ export const Spectrogram = () => {
         lowPassCutoff: Math.max(freq, filterSettings.highPassCutoff + 50),
         enabled: true
       });
+    } else if (isDraggingBand && bandDragStart) {
+      // Calculate frequency delta from drag start
+      const freqDelta = freq - bandDragStart.freq;
+
+      // Calculate new cutoffs maintaining bandwidth
+      let newHighPass = bandDragStart.highPass + freqDelta;
+      let newLowPass = bandDragStart.lowPass + freqDelta;
+
+      // Clamp to valid range while maintaining bandwidth
+      const bandwidth = bandDragStart.lowPass - bandDragStart.highPass;
+      if (newHighPass < 20) {
+        newHighPass = 20;
+        newLowPass = 20 + bandwidth;
+      }
+      if (newLowPass > 20000) {
+        newLowPass = 20000;
+        newHighPass = 20000 - bandwidth;
+      }
+
+      setFilterSettings({
+        ...filterSettings,
+        highPassCutoff: Math.round(newHighPass),
+        lowPassCutoff: Math.round(newLowPass),
+        enabled: true
+      });
     }
   };
 
   const handleCanvasMouseUp = () => {
     setIsDraggingHighPass(false);
     setIsDraggingLowPass(false);
+    setIsDraggingBand(false);
+    setBandDragStart(null);
   };
 
   return (
@@ -224,7 +279,7 @@ export const Spectrogram = () => {
         />
       </div>
       <div className="mt-2 text-xs text-gray-500 text-center">
-        Click left edge to drag high-pass filter • Click right edge to drag low-pass filter
+        Click left edge to drag high-pass • Click right edge to drag low-pass • Click center to slide band
       </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-gray-600">
