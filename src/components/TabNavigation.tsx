@@ -1,33 +1,27 @@
-import { useState, useEffect } from 'react';
-
-type TabType = 'spectrum' | 'recordings' | 'config' | 'about';
+import { useEffect } from 'react';
+import { useAudioStore, TabType } from '../store/audioStore';
 
 interface TabNavigationProps {
   children: (activeTab: TabType) => React.ReactNode;
 }
 
 export const TabNavigation = ({ children }: TabNavigationProps) => {
-  const [activeTab, setActiveTab] = useState<TabType>('spectrum');
+  const { activeTab, setActiveTab } = useAudioStore();
 
-  // Load previously selected tab from localStorage
+  // Load previously selected tab from localStorage on mount
   useEffect(() => {
     const savedTab = localStorage.getItem('activeTab') as TabType;
     if (savedTab && ['spectrum', 'recordings', 'config', 'about'].includes(savedTab)) {
       setActiveTab(savedTab);
     }
-  }, []);
-
-  const handleTabChange = (tab: TabType) => {
-    setActiveTab(tab);
-    localStorage.setItem('activeTab', tab);
-  };
+  }, [setActiveTab]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Tab Headers */}
       <div className="flex border-b border-gray-200">
         <button
-          onClick={() => handleTabChange('spectrum')}
+          onClick={() => setActiveTab('spectrum')}
           className={`flex-1 py-4 px-6 text-center font-semibold transition ${
             activeTab === 'spectrum'
               ? 'bg-blue-500 text-white border-b-2 border-blue-600'
@@ -37,7 +31,7 @@ export const TabNavigation = ({ children }: TabNavigationProps) => {
           📊 Spectrum
         </button>
         <button
-          onClick={() => handleTabChange('recordings')}
+          onClick={() => setActiveTab('recordings')}
           className={`flex-1 py-4 px-6 text-center font-semibold transition ${
             activeTab === 'recordings'
               ? 'bg-blue-500 text-white border-b-2 border-blue-600'
@@ -47,7 +41,7 @@ export const TabNavigation = ({ children }: TabNavigationProps) => {
           🎙️ Recordings
         </button>
         <button
-          onClick={() => handleTabChange('config')}
+          onClick={() => setActiveTab('config')}
           className={`flex-1 py-4 px-6 text-center font-semibold transition ${
             activeTab === 'config'
               ? 'bg-blue-500 text-white border-b-2 border-blue-600'
@@ -57,7 +51,7 @@ export const TabNavigation = ({ children }: TabNavigationProps) => {
           ⚙️ Config/Test
         </button>
         <button
-          onClick={() => handleTabChange('about')}
+          onClick={() => setActiveTab('about')}
           className={`flex-1 py-4 px-6 text-center font-semibold transition ${
             activeTab === 'about'
               ? 'bg-blue-500 text-white border-b-2 border-blue-600'

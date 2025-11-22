@@ -10,7 +10,12 @@ import {
 } from '../types/audio';
 import { saveRecordingsToStorage } from '../utils/localStorage';
 
+export type TabType = 'spectrum' | 'recordings' | 'config' | 'about';
+
 interface AudioState {
+  // UI state
+  activeTab: TabType;
+
   // Recording state
   recordingState: RecordingState;
   currentRecording: AudioRecording | null;
@@ -51,11 +56,14 @@ interface AudioState {
   setFilterSettings: (settings: FilterSettings) => void;
   setSpectrogramSettings: (settings: SpectrogramSettings) => void;
   setVisualizationSettings: (settings: AudioVisualizationSettings) => void;
+  setActiveTab: (tab: TabType) => void;
 
   reset: () => void;
 }
 
 const initialState = {
+  activeTab: 'spectrum' as TabType,
+
   recordingState: RecordingState.IDLE,
   currentRecording: null,
   recordings: [],
@@ -125,6 +133,10 @@ export const useAudioStore = create<AudioState>((set) => ({
   setFilterSettings: (filterSettings) => set({ filterSettings }),
   setSpectrogramSettings: (spectrogramSettings) => set({ spectrogramSettings }),
   setVisualizationSettings: (visualizationSettings) => set({ visualizationSettings }),
+  setActiveTab: (activeTab) => {
+    set({ activeTab });
+    localStorage.setItem('activeTab', activeTab);
+  },
 
   reset: () => set(initialState)
 }));

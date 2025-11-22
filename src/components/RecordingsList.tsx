@@ -6,7 +6,7 @@ import { useAudioContext } from '../hooks/useAudioContext';
 import { downloadAudio } from '../utils/audioProcessing';
 
 export const RecordingsList = () => {
-  const { recordings, removeRecording, currentRecording, setSelectedRecording } = useAudioStore();
+  const { recordings, removeRecording, currentRecording, setSelectedRecording, setActiveTab } = useAudioStore();
   const { loadAudio } = useAudioPlayback();
   const { audioContext } = useAudioContext();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -16,6 +16,8 @@ export const RecordingsList = () => {
     console.log('Loading recording:', recording.name, 'Blob size:', recording.blob.size, 'bytes');
     setSelectedRecording(recording);
     await loadAudio(recording);
+    // Switch to Spectrum tab to see playback controls and visualization
+    setActiveTab('spectrum');
   };
 
   const handleDownload = async (recording: AudioRecording) => {
