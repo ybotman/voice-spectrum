@@ -1,55 +1,22 @@
 import { useAudioPlayback } from '../hooks/useAudioPlayback';
 import { useAudioStore } from '../store/audioStore';
-import { PlaybackState, AudioRecording } from '../types/audio';
-import { loadAudioFile } from '../utils/audioProcessing';
-import { useAudioContext } from '../hooks/useAudioContext';
+import { PlaybackState } from '../types/audio';
 
 export const AudioPlayback = () => {
   const {
     playbackState,
     currentAudioBuffer,
-    loadAudio,
     play,
     stop,
     pause,
     resume
   } = useAudioPlayback();
 
-  const { audioContext } = useAudioContext();
-  const { selectedRecording, loopEnabled, setLoopEnabled, setSelectedRecording, addRecording } = useAudioStore();
+  const { selectedRecording, loopEnabled, setLoopEnabled } = useAudioStore();
 
   const isPlaying = playbackState === PlaybackState.PLAYING;
   const isPaused = playbackState === PlaybackState.PAUSED;
   const hasAudio = currentAudioBuffer !== null;
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !audioContext) return;
-
-    try {
-      console.log('Loading audio file:', file.name, 'Size:', file.size, 'bytes');
-      const audioBuffer = await loadAudioFile(file, audioContext);
-
-      // Create a new recording from the uploaded file
-      const recording: AudioRecording = {
-        id: `upload-${Date.now()}`,
-        name: file.name,
-        blob: file,
-        duration: audioBuffer.duration,
-        createdAt: new Date()
-      };
-
-      addRecording(recording);
-      setSelectedRecording(recording);
-      await loadAudio(recording);
-
-      console.log('File loaded successfully:', audioBuffer.duration, 'seconds');
-      console.log('Recording selected and loaded. Ready to play.');
-    } catch (err) {
-      console.error('Failed to load audio file:', err);
-      alert('Failed to load audio file. Please try a different file.');
-    }
-  };
 
   const toggleLoop = () => {
     setLoopEnabled(!loopEnabled);
@@ -59,17 +26,8 @@ export const AudioPlayback = () => {
   if (!selectedRecording && !hasAudio) {
     return (
       <div className="bg-gray-100 rounded-lg p-6 mb-6">
-        <p className="text-gray-600 mb-4">No audio selected. Record or load an audio file to begin.</p>
-
-        <label className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded cursor-pointer transition">
-          📁 Load Audio File
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </label>
+        <h2 className="text-2xl font-bold mb-4">Audio Playback</h2>
+        <p className="text-gray-600">No audio selected. Go to the Recordings tab to record, upload, or select audio.</p>
       </div>
     );
   }
@@ -88,16 +46,6 @@ export const AudioPlayback = () => {
       )}
 
       <div className="mb-4 flex gap-3 items-center">
-        <label className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded cursor-pointer transition text-sm">
-          📁 Load File
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </label>
-
         <button
           onClick={toggleLoop}
           className={`${

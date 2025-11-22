@@ -2,6 +2,7 @@ import { AudioRecorder } from './components/AudioRecorder';
 import { AudioPlayback } from './components/AudioPlayback';
 import { RecordingsList } from './components/RecordingsList';
 import { SampleAudioLoader } from './components/SampleAudioLoader';
+import { FileUploader } from './components/FileUploader';
 import { AudioTrimmer } from './components/AudioTrimmer';
 import { FilterControls } from './components/FilterControls';
 import { Spectrogram } from './components/Spectrogram';
@@ -52,6 +53,7 @@ function App() {
               {activeTab === 'recordings' && (
                 <div className="space-y-6">
                   <AudioRecorder />
+                  <FileUploader />
                   <SampleAudioLoader />
                   <AudioTrimmer />
                   <RecordingsList />
