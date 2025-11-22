@@ -6,18 +6,17 @@ import { useAudioContext } from '../hooks/useAudioContext';
 import { downloadAudio } from '../utils/audioProcessing';
 
 export const RecordingsList = () => {
-  const { recordings, removeRecording, currentRecording, setSelectedRecording, setActiveTab } = useAudioStore();
+  const { recordings, removeRecording, currentRecording, selectedRecording, setSelectedRecording } = useAudioStore();
   const { loadAudio } = useAudioPlayback();
   const { audioContext } = useAudioContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
 
   const handleSelect = async (recording: AudioRecording) => {
-    console.log('Loading recording:', recording.name, 'Blob size:', recording.blob.size, 'bytes');
+    console.log('Selecting recording:', recording.name, 'Blob size:', recording.blob.size, 'bytes');
     setSelectedRecording(recording);
     await loadAudio(recording);
-    // Switch to Spectrum tab to see playback controls and visualization
-    setActiveTab('spectrum');
+    // Don't auto-switch tabs - let user stay on Recordings tab
   };
 
   const handleDownload = async (recording: AudioRecording) => {
@@ -106,10 +105,16 @@ export const RecordingsList = () => {
       <h2 className="text-2xl font-bold mb-4">Recordings</h2>
 
       <div className="space-y-2">
-        {allRecordings.map((recording) => (
+        {allRecordings.map((recording) => {
+          const isSelected = selectedRecording?.id === recording.id;
+          return (
           <div
             key={recording.id}
-            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded transition"
+            className={`flex items-center justify-between p-3 rounded transition ${
+              isSelected
+                ? 'bg-blue-100 border-2 border-blue-500'
+                : 'bg-gray-50 hover:bg-gray-100'
+            }`}
           >
             <div className="flex-1">
               {editingId === recording.id ? (
@@ -140,7 +145,14 @@ export const RecordingsList = () => {
                 </div>
               ) : (
                 <>
-                  <p className="font-semibold">{recording.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold">{recording.name}</p>
+                    {isSelected && (
+                      <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                        SELECTED
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-600">
                     {recording.duration.toFixed(2)}s • {(recording.blob.size / 1024).toFixed(1)} KB
                   </p>
@@ -162,10 +174,14 @@ export const RecordingsList = () => {
                 </button>
               <button
                 onClick={() => handleSelect(recording)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm transition"
-                title="Load this recording for playback"
+                className={`px-4 py-2 rounded text-sm transition ${
+                  isSelected
+                    ? 'bg-blue-700 hover:bg-blue-800 text-white font-bold'
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+                title="Select this recording for playback in Spectrum tab"
               >
-                Load
+                {isSelected ? '✓ Selected' : 'Select'}
               </button>
               <button
                 onClick={() => handleDownload(recording)}
@@ -184,7 +200,8 @@ export const RecordingsList = () => {
               </>
             )}</div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
