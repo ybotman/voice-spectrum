@@ -11,6 +11,8 @@ import { TestToneGenerator } from './components/TestToneGenerator';
 import { TabNavigation } from './components/TabNavigation';
 import { useAudioContext } from './hooks/useAudioContext';
 import { useLoadRecordings } from './hooks/useLoadRecordings';
+import { APP_VERSION, CHANGELOG } from './version';
+import { useState } from 'react';
 
 function App() {
   // Initialize audio context
@@ -19,12 +21,33 @@ function App() {
   // Load saved recordings from localStorage
   const { isLoading } = useLoadRecordings();
 
+  // Changelog expansion state
+  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set([CHANGELOG[0].version]));
+
+  const toggleVersion = (version: string) => {
+    const newExpanded = new Set(expandedVersions);
+    if (newExpanded.has(version)) {
+      newExpanded.delete(version);
+    } else {
+      newExpanded.add(version);
+    }
+    setExpandedVersions(newExpanded);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-4xl font-bold">Voice Spectrum Analyzer</h1>
-          <p className="text-blue-100 mt-2">Demonstrating that all sounds are composed of simple sine waves</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold">Voice Spectrum Analyzer</h1>
+              <p className="text-blue-100 mt-2">Demonstrating that all sounds are composed of simple sine waves</p>
+            </div>
+            <div className="text-right">
+              <span className="text-blue-200 text-sm">Version</span>
+              <p className="text-2xl font-bold">{APP_VERSION}</p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -183,6 +206,47 @@ function App() {
                       <li><strong>Filter Testing:</strong> Verify extreme filter performance with test tones</li>
                       <li><strong>Acoustic Research:</strong> Measure and analyze sound in frequency domain</li>
                     </ul>
+                  </section>
+
+                  <section className="mb-8">
+                    <h3 className="text-2xl font-bold mb-3">📝 Version History & Changelog</h3>
+                    <div className="space-y-3">
+                      {CHANGELOG.map((entry) => {
+                        const isExpanded = expandedVersions.has(entry.version);
+                        const badgeColor = entry.type === 'major' ? 'bg-red-500' : entry.type === 'minor' ? 'bg-blue-500' : 'bg-green-500';
+
+                        return (
+                          <div key={entry.version} className="border border-gray-300 rounded-lg overflow-hidden">
+                            <button
+                              onClick={() => toggleVersion(entry.version)}
+                              className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{isExpanded ? '▼' : '▶'}</span>
+                                <span className="font-bold text-lg">v{entry.version}</span>
+                                <span className={`${badgeColor} text-white text-xs px-2 py-1 rounded uppercase`}>
+                                  {entry.type}
+                                </span>
+                                <span className="text-sm text-gray-600">{entry.date}</span>
+                              </div>
+                              <span className="text-sm text-gray-500">
+                                {entry.changes.length} change{entry.changes.length !== 1 ? 's' : ''}
+                              </span>
+                            </button>
+
+                            {isExpanded && (
+                              <div className="px-4 py-3 bg-white border-t border-gray-200">
+                                <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                                  {entry.changes.map((change, idx) => (
+                                    <li key={idx}>{change}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </section>
 
                   <section className="text-center py-6 border-t border-gray-200">
