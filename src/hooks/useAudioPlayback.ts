@@ -131,9 +131,12 @@ export const useAudioPlayback = () => {
     // Setup audio chain with SPLIT PATH:
     // 1. Source -> Analyser (for visualization of FULL spectrum)
     // 2. Source -> Filters -> Speakers (for filtered audio playback)
+    console.log('Filter settings:', filterSettings);
     if (filterSettings.enabled) {
+      console.log('Filters ENABLED - setting up filter chain...');
       const filters = setupFilters();
       if (filters) {
+        console.log('Filter nodes created successfully');
         // Path 1: Full spectrum visualization (unfiltered)
         source.connect(analyserNode);
 
@@ -173,14 +176,19 @@ export const useAudioPlayback = () => {
   }, [audioContext, currentAudioBuffer, analyserNode, filterSettings, loopEnabled, setupFilters, setPlaybackState]);
 
   const stop = useCallback(() => {
+    console.log('Stop button clicked. SourceNode exists:', !!sourceNodeRef.current);
     if (sourceNodeRef.current) {
       try {
+        console.log('Stopping audio source...');
         sourceNodeRef.current.stop();
         sourceNodeRef.current.disconnect();
+        console.log('Audio source stopped and disconnected');
       } catch (err) {
-        console.warn('Error stopping source:', err);
+        console.error('Error stopping source:', err);
       }
       sourceNodeRef.current = null;
+    } else {
+      console.warn('No active source to stop');
     }
 
     // Disconnect all filters if they exist

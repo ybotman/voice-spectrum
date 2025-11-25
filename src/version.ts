@@ -1,5 +1,5 @@
 // Application version and changelog
-export const APP_VERSION = '1.2.0';
+export const APP_VERSION = '1.2.1';
 
 export interface ChangelogEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.2.1',
+    date: '2025-01-24',
+    type: 'patch',
+    changes: [
+      'Fixed AudioContext closing on tab navigation - audio now plays correctly',
+      'Fixed auto-switch to Spectrum tab when selecting recording',
+      'Swapped Select and Rename button order for better UX'
+    ]
+  },
   {
     version: '1.2.0',
     date: '2025-01-24',
