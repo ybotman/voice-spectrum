@@ -1,5 +1,5 @@
 // Application version and changelog
-export const APP_VERSION = '1.2.2';
+export const APP_VERSION = '1.2.3';
 
 export interface ChangelogEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.2.3',
+    date: '2025-01-24',
+    type: 'patch',
+    changes: [
+      'Fixed rename not persisting to localStorage',
+      'Renamed recordings now save automatically and persist across page reloads'
+    ]
+  },
   {
     version: '1.2.2',
     date: '2025-01-24',

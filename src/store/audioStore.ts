@@ -119,7 +119,11 @@ export const useAudioStore = create<AudioState>((set) => ({
     saveRecordingsToStorage(newRecordings);
     return { recordings: newRecordings };
   }),
-  setRecordings: (recordings) => set({ recordings }),
+  setRecordings: (recordings) => {
+    // Auto-save to localStorage when updating recordings (e.g., rename)
+    saveRecordingsToStorage(recordings);
+    set({ recordings });
+  },
 
   setPlaybackState: (playbackState) => set({ playbackState }),
   setCurrentAudioBuffer: (currentAudioBuffer) => set({ currentAudioBuffer }),
