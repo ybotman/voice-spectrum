@@ -166,13 +166,6 @@ export const RecordingsList = () => {
 
             <div className="flex gap-2">{editingId !== recording.id && (
               <>
-                <button
-                  onClick={() => handleRenameStart(recording)}
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm transition"
-                  title="Rename this recording"
-                >
-                  Rename
-                </button>
               <button
                 onClick={() => handleSelect(recording)}
                 className={`px-4 py-2 rounded text-sm transition ${
@@ -184,6 +177,13 @@ export const RecordingsList = () => {
               >
                 {isSelected ? '✓ Selected' : 'Select'}
               </button>
+                <button
+                  onClick={() => handleRenameStart(recording)}
+                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm transition"
+                  title="Rename this recording"
+                >
+                  Rename
+                </button>
               <button
                 onClick={() => handleDownload(recording)}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm transition"
