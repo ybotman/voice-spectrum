@@ -19,7 +19,8 @@ export const FilterControls = () => {
     const adjustedValue = Math.min(value, localLowPass - 100);
     setFilterSettings({
       ...filterSettings,
-      highPassCutoff: adjustedValue
+      highPassCutoff: adjustedValue,
+      enabled: true  // Auto-enable filter when adjusting
     });
   };
 
@@ -29,7 +30,8 @@ export const FilterControls = () => {
     const adjustedValue = Math.max(value, localHighPass + 100);
     setFilterSettings({
       ...filterSettings,
-      lowPassCutoff: adjustedValue
+      lowPassCutoff: adjustedValue,
+      enabled: true  // Auto-enable filter when adjusting
     });
   };
 
@@ -144,12 +146,16 @@ export const FilterControls = () => {
               onClick={() => {
                 setLocalHighPass(0);
                 setLocalLowPass(20000);
-                handleHighPassChange(0);
-                handleLowPassChange(20000);
+                setFilterSettings({
+                  ...filterSettings,
+                  highPassCutoff: 0,
+                  lowPassCutoff: 20000,
+                  enabled: false  // Disable filter for full range
+                });
               }}
               className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded transition"
             >
-              Full Range
+              Full Range (No Filter)
             </button>
           </div>
         </div>
