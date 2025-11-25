@@ -1,5 +1,5 @@
 // Application version and changelog
-export const APP_VERSION = '1.2.3';
+export const APP_VERSION = '1.2.4';
 
 export interface ChangelogEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.2.4',
+    date: '2025-01-24',
+    type: 'patch',
+    changes: [
+      'Added "Clean Below 125 Hz" preset to remove low-frequency noise and rumble',
+      'Replaced low vocal presets with specific fundamental frequency presets',
+      'New presets: 200 Hz, 300 Hz, 400 Hz Fundamental (100 Hz wide bands)',
+      'Helps eliminate background noise below voice fundamentals'
+    ]
+  },
   {
     version: '1.2.3',
     date: '2025-01-24',

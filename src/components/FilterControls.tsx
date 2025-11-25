@@ -107,40 +107,59 @@ export const FilterControls = () => {
 
         {/* Presets */}
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Vocal Range Presets (100 Hz wide):</p>
+          <p className="text-sm font-medium text-gray-700 mb-2">Filter Presets:</p>
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => {
-                setLocalHighPass(50);
-                setLocalLowPass(150);
-                handleHighPassChange(50);
-                handleLowPassChange(150);
+                setLocalHighPass(125);
+                setLocalLowPass(20000);
+                setFilterSettings({
+                  ...filterSettings,
+                  highPassCutoff: 125,
+                  lowPassCutoff: 20000,
+                  enabled: true
+                });
               }}
-              className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
+              className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition font-bold"
+              title="Remove everything below 125 Hz - eliminates low frequency noise and rumble"
             >
-              Low Vocal (50-150 Hz)
+              🗑️ Clean Below 125 Hz
             </button>
             <button
               onClick={() => {
-                setLocalHighPass(100);
-                setLocalLowPass(200);
-                handleHighPassChange(100);
-                handleLowPassChange(200);
+                setLocalHighPass(150);
+                setLocalLowPass(250);
+                handleHighPassChange(150);
+                handleLowPassChange(250);
               }}
               className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
+              title="Isolate fundamentals around 200 Hz (150-250 Hz)"
             >
-              Mid Vocal (100-200 Hz)
+              200 Hz Fundamental
             </button>
             <button
               onClick={() => {
-                setLocalHighPass(300);
-                setLocalLowPass(400);
-                handleHighPassChange(300);
-                handleLowPassChange(400);
+                setLocalHighPass(250);
+                setLocalLowPass(350);
+                handleHighPassChange(250);
+                handleLowPassChange(350);
               }}
               className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
+              title="Isolate fundamentals around 300 Hz (250-350 Hz)"
             >
-              High Vocal (300-400 Hz)
+              300 Hz Fundamental
+            </button>
+            <button
+              onClick={() => {
+                setLocalHighPass(350);
+                setLocalLowPass(450);
+                handleHighPassChange(350);
+                handleLowPassChange(450);
+              }}
+              className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition"
+              title="Isolate fundamentals around 400 Hz (350-450 Hz)"
+            >
+              400 Hz Fundamental
             </button>
             <button
               onClick={() => {
