@@ -98,9 +98,16 @@ export const useAudioPlayback = () => {
       return;
     }
 
-    // Resume audio context if suspended
+    // Check AudioContext state and resume if needed
+    console.log('AudioContext state before play:', audioContext.state);
     if (audioContext.state === 'suspended') {
+      console.log('Resuming suspended AudioContext...');
       await audioContext.resume();
+      console.log('AudioContext resumed, new state:', audioContext.state);
+    } else if (audioContext.state === 'closed') {
+      console.error('AudioContext is closed! Need to recreate it.');
+      alert('Audio context was closed. Please refresh the page to continue.');
+      return;
     }
 
     // Stop any existing playback

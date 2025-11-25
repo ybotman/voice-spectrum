@@ -33,12 +33,12 @@ export const useAudioContext = () => {
       setAnalyserNode(analyser);
     }
 
-    // Cleanup on unmount
-    return () => {
-      if (audioContext && audioContext.state !== 'closed') {
-        audioContext.close();
-      }
-    };
+    // NOTE: We don't close the AudioContext on unmount because:
+    // 1. It needs to persist across tab navigation
+    // 2. It should stay alive for the entire app lifetime
+    // 3. The browser will clean it up when the page is closed
+    // Closing it here would break playback when switching tabs
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
