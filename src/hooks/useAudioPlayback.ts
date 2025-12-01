@@ -237,24 +237,57 @@ export const useAudioPlayback = () => {
     }
   }, [audioContext, playbackState, setPlaybackState]);
 
+  // Track previous filter enabled state to detect toggles
+  const prevFilterEnabledRef = useRef(filterSettings.enabled);
+
   // Update all filters in real-time when settings change
   useEffect(() => {
-    if (filterSettings.enabled) {
-      // Update all high-pass filters
-      highPassFiltersRef.current.forEach(filter => {
-        if (filter) {
-          filter.frequency.value = filterSettings.highPassCutoff;
-        }
-      });
+    const filterWasToggled = prevFilterEnabledRef.current !== filterSettings.enabled;
+    prevFilterEnabledRef.current = filterSettings.enabled;
 
-      // Update all low-pass filters
-      lowPassFiltersRef.current.forEach(filter => {
-        if (filter) {
-          filter.frequency.value = filterSettings.lowPassCutoff;
-        }
-      });
+    if (filterSettings.enabled) {
+      // If filters exist, update their frequencies
+      if (highPassFiltersRef.current.length > 0) {
+        highPassFiltersRef.current.forEach(filter => {
+          if (filter) {
+            filter.frequency.value = filterSettings.highPassCutoff;
+          }
+        });
+
+        lowPassFiltersRef.current.forEach(filter => {
+          if (filter) {
+            filter.frequency.value = filterSettings.lowPassCutoff;
+          }
+        });
+      }
     }
-  }, [filterSettings]);
+
+    // If filter was toggled ON/OFF during playback, we need to restart
+    // because the audio graph needs to be rebuilt with/without filters
+    if (filterWasToggled && playbackState === PlaybackState.PLAYING && currentAudioBuffer) {
+      console.log('Filter toggled during playback - restarting audio to apply changes');
+      // Stop current playback
+      if (sourceNodeRef.current) {
+        try {
+          sourceNodeRef.current.stop();
+          sourceNodeRef.current.disconnect();
+        } catch (err) {
+          // Ignore errors if already stopped
+        }
+        sourceNodeRef.current = null;
+      }
+      // Clear old filters
+      highPassFiltersRef.current.forEach(f => { try { f?.disconnect(); } catch {} });
+      lowPassFiltersRef.current.forEach(f => { try { f?.disconnect(); } catch {} });
+      highPassFiltersRef.current = [];
+      lowPassFiltersRef.current = [];
+
+      // Restart playback with new filter state (use setTimeout to avoid state conflicts)
+      setTimeout(() => {
+        play();
+      }, 50);
+    }
+  }, [filterSettings, playbackState, currentAudioBuffer, play]);
 
   return {
     playbackState,
