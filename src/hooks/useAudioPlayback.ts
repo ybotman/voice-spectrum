@@ -239,6 +239,8 @@ export const useAudioPlayback = () => {
 
   // Track previous filter enabled state to detect toggles
   const prevFilterEnabledRef = useRef(filterSettings.enabled);
+  // Flag to trigger restart without including play() in dependencies
+  const needsRestartRef = useRef(false);
 
   // Update all filters in real-time when settings change
   useEffect(() => {
@@ -262,10 +264,18 @@ export const useAudioPlayback = () => {
       }
     }
 
-    // If filter was toggled ON/OFF during playback, we need to restart
-    // because the audio graph needs to be rebuilt with/without filters
+    // If filter was toggled ON/OFF during playback, mark for restart
     if (filterWasToggled && playbackState === PlaybackState.PLAYING && currentAudioBuffer) {
+      needsRestartRef.current = true;
+    }
+  }, [filterSettings, playbackState, currentAudioBuffer]);
+
+  // Separate effect to handle restart - avoids circular dependency with play()
+  useEffect(() => {
+    if (needsRestartRef.current && playbackState === PlaybackState.PLAYING && currentAudioBuffer && audioContext && analyserNode) {
+      needsRestartRef.current = false;
       console.log('Filter toggled during playback - restarting audio to apply changes');
+
       // Stop current playback
       if (sourceNodeRef.current) {
         try {
@@ -282,12 +292,13 @@ export const useAudioPlayback = () => {
       highPassFiltersRef.current = [];
       lowPassFiltersRef.current = [];
 
-      // Restart playback with new filter state (use setTimeout to avoid state conflicts)
+      // Restart playback with new filter state
       setTimeout(() => {
         play();
       }, 50);
     }
-  }, [filterSettings, playbackState, currentAudioBuffer, play]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterSettings.enabled]); // Only re-run when enabled state changes
 
   return {
     playbackState,
